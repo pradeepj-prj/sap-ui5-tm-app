@@ -1,0 +1,97 @@
+_schema-version: "3.1"
+ID: tm-dashboard
+description: Unified SAPUI5 Talent Management Dashboard
+version: 1.0.0
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install
+
+modules:
+  # UI5 app — built and zipped for HTML5 repo
+  - name: tm-dashboard-content
+    type: html5
+    path: app/webapp
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npx ui5 build --clean-dest --dest dist
+      supported-platforms: []
+
+  # Deploys the app zip to HTML5 Application Repository
+  - name: tm-dashboard-deployer
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: tm-dashboard-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - name: tm-dashboard-content
+          artifacts:
+            - dist/*.zip
+          target-path: resources/
+
+  # Deploys destination configuration
+  - name: tm-dashboard-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: tm-dashboard-destination-service
+        parameters:
+          content-target: true
+      - name: tm-dashboard-html5-repo-host
+        parameters:
+          service-key:
+            name: tm-dashboard-html5-repo-host-key
+      - name: tm-dashboard-uaa
+        parameters:
+          service-key:
+            name: tm-dashboard-uaa-key
+    parameters:
+      content:
+        subaccount:
+          destinations:
+            - Name: tm-dashboard-html5-repo-host
+              ServiceInstanceName: tm-dashboard-html5-repo-host
+              ServiceKeyName: tm-dashboard-html5-repo-host-key
+              sap.cloud.service: com.sap.tm.dashboard
+            - Name: tm-dashboard-uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: tm-dashboard-uaa
+              ServiceKeyName: tm-dashboard-uaa-key
+              sap.cloud.service: com.sap.tm.dashboard
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
+resources:
+  # HTML5 Application Repository
+  - name: tm-dashboard-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+
+  # XSUAA
+  - name: tm-dashboard-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+
+  # Destination service
+  - name: tm-dashboard-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite

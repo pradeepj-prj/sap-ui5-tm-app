@@ -1,0 +1,26 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^(/tm/.*)$",
+      "target": "$1",
+      "destination": "tm-api-layer",
+      "authenticationType": "none",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/mcp/(.*)$",
+      "target": "$1",
+      "destination": "tm-mcp-server",
+      "authenticationType": "none",
+      "csrfProtection": false
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

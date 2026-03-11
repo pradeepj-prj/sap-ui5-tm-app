@@ -1,0 +1,36 @@
+{
+  "tools": [
+    {"name": "get_employee", "category": "Employee", "description": "Get employee details by ID", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "get_employee_skills", "category": "Employee", "description": "Get skills for an employee", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "get_employee_learning", "category": "Employee", "description": "Get learning history for an employee", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "search_employees", "category": "Employee", "description": "Search employees by criteria", "parameters": [{"name": "query", "type": "string", "required": true}, {"name": "limit", "type": "integer", "required": false}]},
+    {"name": "get_skill_details", "category": "Skill", "description": "Get detailed skill information", "parameters": [{"name": "skill_id", "type": "string", "required": true}]},
+    {"name": "get_skill_inventory", "category": "Skill", "description": "Get organization skill inventory", "parameters": [{"name": "org_id", "type": "string", "required": false}]},
+    {"name": "search_skills", "category": "Skill", "description": "Search skills by keyword", "parameters": [{"name": "query", "type": "string", "required": true}]},
+    {"name": "search_talent", "category": "Talent", "description": "Search for talent by skills and criteria", "parameters": [{"name": "skills", "type": "string", "required": true}, {"name": "min_proficiency", "type": "number", "required": false}]},
+    {"name": "get_top_experts", "category": "Talent", "description": "Get top experts for a skill", "parameters": [{"name": "skill_id", "type": "string", "required": true}, {"name": "limit", "type": "integer", "required": false}]},
+    {"name": "find_skill_gaps", "category": "Talent", "description": "Find skill gaps in an organization", "parameters": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "get_org_summary", "category": "Organization", "description": "Get organization summary", "parameters": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "get_org_skills", "category": "Organization", "description": "Get skills distribution for an org", "parameters": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "get_team_composition", "category": "Organization", "description": "Get team composition and roles", "parameters": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "predict_attrition_risk", "category": "Attrition", "description": "Predict attrition risk for an employee", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "get_high_risk_employees", "category": "Attrition", "description": "Get employees with high attrition risk", "parameters": [{"name": "org_id", "type": "string", "required": false}, {"name": "threshold", "type": "number", "required": false}]},
+    {"name": "get_attrition_factors", "category": "Attrition", "description": "Get factors contributing to attrition", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "get_org_attrition_summary", "category": "Attrition", "description": "Get attrition summary for an organization", "parameters": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "get_retention_recommendations", "category": "Attrition", "description": "Get retention recommendations for an employee", "parameters": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "get_workforce_trends", "category": "Attrition", "description": "Get workforce attrition trends", "parameters": [{"name": "org_id", "type": "string", "required": false}, {"name": "period", "type": "string", "required": false}]},
+    {"name": "get_audit_summary", "category": "Audit", "description": "Get MCP audit summary statistics", "parameters": []},
+    {"name": "get_recent_audit", "category": "Audit", "description": "Get recent audit entries", "parameters": [{"name": "limit", "type": "integer", "required": false}]}
+  ],
+  "resources": [
+    {"uri": "tm://employee-schema", "name": "Employee Schema", "description": "JSON schema for employee data model including skills, learning history, and organizational assignments"},
+    {"uri": "tm://skill-taxonomy", "name": "Skill Taxonomy", "description": "Hierarchical skill taxonomy with categories, proficiency levels, and relationships"}
+  ],
+  "prompts": [
+    {"name": "talent-search", "description": "Search for talent matching specific skill requirements", "arguments": [{"name": "skills", "type": "string", "required": true}, {"name": "context", "type": "string", "required": false}]},
+    {"name": "skill-gap-analysis", "description": "Analyze skill gaps for a team or organization", "arguments": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "attrition-risk-report", "description": "Generate an attrition risk report for a team", "arguments": [{"name": "org_id", "type": "string", "required": true}]},
+    {"name": "employee-profile", "description": "Generate a comprehensive employee profile summary", "arguments": [{"name": "employee_id", "type": "string", "required": true}]},
+    {"name": "workforce-planning", "description": "Assist with workforce planning and recommendations", "arguments": [{"name": "org_id", "type": "string", "required": true}, {"name": "horizon", "type": "string", "required": false}]}
+  ]
+}

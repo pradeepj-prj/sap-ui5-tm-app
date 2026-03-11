@@ -1,0 +1,148 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.ApiExplorer"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <VBox
+        class="sapUiContentPadding"
+        id="apiExplorerPage">
+
+        <l:Splitter id="apiSplitter" height="calc(100vh - 12rem)">
+            <l:contentAreas>
+
+                <!-- Left Pane: Endpoint List -->
+                <ScrollContainer
+                    height="100%"
+                    vertical="true"
+                    horizontal="false">
+                    <Panel headerText="API Endpoints" class="sapUiNoContentPadding">
+                        <List
+                            id="endpointList"
+                            mode="SingleSelectMaster"
+                            selectionChange=".onEndpointSelect"
+                            items="{apiExplorer>/endpoints}">
+                            <headerToolbar>
+                                <Toolbar>
+                                    <SearchField
+                                        placeholder="Filter endpoints..."
+                                        liveChange=".onEndpointFilter"
+                                        width="100%" />
+                                </Toolbar>
+                            </headerToolbar>
+                            <StandardListItem
+                                title="{apiExplorer>name}"
+                                description="{apiExplorer>description}"
+                                info="{apiExplorer>method}"
+                                infoState="{= ${apiExplorer>method} === 'GET' ? 'Success' : 'Warning'}"
+                                type="Active" />
+                        </List>
+                    </Panel>
+                </ScrollContainer>
+
+                <!-- Right Pane: Endpoint Detail & Results -->
+                <ScrollContainer
+                    height="100%"
+                    vertical="true"
+                    horizontal="false">
+
+                    <!-- Placeholder when nothing is selected -->
+                    <IllustratedMessage
+                        illustrationType="sapIllus-SimpleBalloon"
+                        title="Select an Endpoint"
+                        description="Choose an API endpoint from the list to explore its parameters and run queries."
+                        visible="{= !${apiExplorer>/selectedEndpoint/name}}" />
+
+                    <!-- Endpoint Detail -->
+                    <VBox visible="{= !!${apiExplorer>/selectedEndpoint/name}}" class="sapUiSmallMargin">
+
+                        <!-- Endpoint Header -->
+                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                            <ObjectStatus
+                                text="{apiExplorer>/selectedEndpoint/method}"
+                                state="{= ${apiExplorer>/selectedEndpoint/method} === 'GET' ? 'Success' : 'Warning'}"
+                                class="sapUiSmallMarginEnd" />
+                            <Title text="{apiExplorer>/selectedEndpoint/name}" level="H3" class="sapUiSmallMarginEnd" />
+                            <Label text="{apiExplorer>/selectedEndpoint/path}" class="sapUiTinyMarginTop" />
+                        </HBox>
+
+                        <Text text="{apiExplorer>/selectedEndpoint/description}" class="sapUiSmallMarginBottom" />
+
+                        <!-- Parameter Form -->
+                        <Panel headerText="Parameters" class="sapUiSmallMarginBottom"
+                               visible="{= ${apiExplorer>/selectedEndpoint/parameters}.length > 0}">
+                            <core:Fragment fragmentName="com.sap.tm.dashboard.fragment.EndpointForm" type="XML" />
+                        </Panel>
+
+                        <!-- Run Button -->
+                        <Toolbar class="sapUiSmallMarginBottom">
+                            <Button
+                                text="Run Query"
+                                icon="sap-icon://play"
+                                type="Emphasized"
+                                press=".onRunQuery" />
+                            <Button
+                                text="Clear Results"
+                                icon="sap-icon://eraser"
+                                press=".onClearResults"
+                                visible="{= !!${apiExplorer>/results}}" />
+                            <ToolbarSpacer />
+                            <Label text="{apiExplorer>/queryDuration}" visible="{= !!${apiExplorer>/queryDuration}}" />
+                        </Toolbar>
+
+                        <!-- Loading Indicator -->
+                        <BusyIndicator
+                            visible="{apiExplorer>/loading}"
+                            size="2rem"
+                            text="Executing query..."
+                            class="sapUiSmallMarginBottom" />
+
+                        <!-- Error Display -->
+                        <MessageStrip
+                            text="{apiExplorer>/errorMessage}"
+                            type="Error"
+                            showIcon="true"
+                            visible="{= !!${apiExplorer>/errorMessage}}"
+                            class="sapUiSmallMarginBottom" />
+
+                        <!-- Results Panel -->
+                        <Panel
+                            headerText="Results"
+                            visible="{= !!${apiExplorer>/results}}"
+                            class="sapUiSmallMarginBottom">
+
+                            <!-- Attrition Dashboard Fragment -->
+                            <core:Fragment fragmentName="com.sap.tm.dashboard.fragment.AttritionDashboard" type="XML" />
+
+                            <!-- Generic Results Table -->
+                            <Table
+                                id="apiResultsTable"
+                                visible="{= ${apiExplorer>/resultType} === 'table'}"
+                                growing="true"
+                                growingThreshold="20"
+                                noDataText="No results">
+                                <headerToolbar>
+                                    <OverflowToolbar>
+                                        <Title text="{= ${apiExplorer>/resultsArray}.length + ' records'}" level="H5" />
+                                        <ToolbarSpacer />
+                                    </OverflowToolbar>
+                                </headerToolbar>
+                            </Table>
+
+                            <!-- Formatted JSON -->
+                            <Panel
+                                visible="{= ${apiExplorer>/resultType} === 'json'}"
+                                class="sapUiNoContentPadding">
+                                <HBox>
+                                    <core:HTML content="{apiExplorer>/formattedJson}" />
+                                </HBox>
+                            </Panel>
+                        </Panel>
+                    </VBox>
+                </ScrollContainer>
+            </l:contentAreas>
+        </l:Splitter>
+    </VBox>
+
+</mvc:View>

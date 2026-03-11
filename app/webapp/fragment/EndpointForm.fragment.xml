@@ -1,0 +1,26 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <!-- Dynamic parameter inputs via aggregation binding against the selected endpoint -->
+    <VBox items="{apiExplorer>/selectedEndpoint/parameters}">
+        <HBox class="sapUiSmallMarginBottom" alignItems="Center">
+            <Label
+                text="{apiExplorer>name}"
+                required="{apiExplorer>required}"
+                width="150px"
+                class="sapUiSmallMarginEnd" />
+            <Input
+                value="{apiExplorer>value}"
+                placeholder="{apiExplorer>placeholder}"
+                type="{= ${apiExplorer>type} === 'number' ? 'Number' : 'Text'}"
+                width="300px"
+                submit=".onRunQuery" />
+            <Label
+                text="{= ${apiExplorer>required} ? '(required)' : '(optional)'}"
+                class="sapUiTinyMarginBegin"
+                design="{= ${apiExplorer>required} ? 'Bold' : 'Standard'}" />
+        </HBox>
+    </VBox>
+
+</core:FragmentDefinition>

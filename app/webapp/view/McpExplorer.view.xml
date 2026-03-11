@@ -1,0 +1,73 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.McpExplorer"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiContentPadding">
+
+        <IconTabBar id="mcpSubTabBar" expandable="false" class="sapUiNoContentPadding">
+            <items>
+
+                <!-- Tools Sub-Tab -->
+                <IconTabFilter text="Tools" count="21" icon="sap-icon://wrench">
+                    <List
+                        id="mcpToolsList"
+                        items="{
+                            path: 'mcp>/tools',
+                            sorter: { path: 'category', group: true }
+                        }"
+                        noDataText="No tools available"
+                        mode="SingleSelectMaster"
+                        itemPress=".onToolSelect">
+                        <ObjectListItem
+                            title="{mcp>name}"
+                            number="{= ${mcp>parameters}.length}"
+                            numberUnit="params"
+                            type="Active">
+                            <attributes>
+                                <ObjectAttribute text="{mcp>description}" />
+                                <ObjectAttribute text="Category: {mcp>category}" />
+                            </attributes>
+                        </ObjectListItem>
+                    </List>
+                </IconTabFilter>
+
+                <!-- Resources Sub-Tab -->
+                <IconTabFilter text="Resources" count="2" icon="sap-icon://document">
+                    <List
+                        id="mcpResourcesList"
+                        items="{mcp>/resources}"
+                        noDataText="No resources available">
+                        <ObjectListItem
+                            title="{mcp>name}"
+                            intro="{mcp>uri}"
+                            icon="sap-icon://document-text">
+                            <attributes>
+                                <ObjectAttribute text="{mcp>description}" />
+                            </attributes>
+                        </ObjectListItem>
+                    </List>
+                </IconTabFilter>
+
+                <!-- Prompts Sub-Tab -->
+                <IconTabFilter text="Prompts" count="5" icon="sap-icon://discussion">
+                    <List
+                        id="mcpPromptsList"
+                        items="{mcp>/prompts}"
+                        noDataText="No prompts available">
+                        <StandardListItem
+                            title="{mcp>name}"
+                            description="{mcp>description}"
+                            info="{= ${mcp>arguments}.length + ' arg(s)'}"
+                            icon="sap-icon://discussion-2"
+                            type="Inactive" />
+                    </List>
+                </IconTabFilter>
+
+            </items>
+        </IconTabBar>
+
+    </VBox>
+
+</mvc:View>

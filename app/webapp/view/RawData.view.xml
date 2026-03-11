@@ -1,0 +1,81 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.RawData"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiContentPadding">
+
+        <!-- Filters Toolbar -->
+        <Toolbar class="sapUiSmallMarginBottom">
+            <Label text="Type" class="sapUiTinyMarginEnd" />
+            <Select
+                id="rawTypeFilter"
+                selectedKey="{raw>/selectedType}"
+                items="{raw>/types}">
+                <core:Item key="{raw>key}" text="{raw>text}" />
+            </Select>
+
+            <Label text="Operation" class="sapUiSmallMarginBegin sapUiTinyMarginEnd" />
+            <Select
+                id="rawOperationFilter"
+                selectedKey="{raw>/selectedOperation}"
+                items="{raw>/operations}">
+                <core:Item key="{raw>key}" text="{raw>text}" />
+            </Select>
+
+            <CheckBox text="Errors only" selected="{raw>/errorsOnly}" class="sapUiSmallMarginBegin" />
+
+            <SearchField
+                placeholder="Search..."
+                value="{raw>/searchText}"
+                width="200px"
+                class="sapUiSmallMarginBegin" />
+
+            <Button text="Apply" type="Emphasized" press=".onApplyFilters" class="sapUiTinyMarginBegin" />
+
+            <ToolbarSpacer />
+
+            <Button icon="sap-icon://download" tooltip="Export to Excel" press=".onExport" />
+        </Toolbar>
+
+        <!-- Data Table -->
+        <Table
+            id="rawDataTable"
+            items="{raw>/filteredEntries}"
+            growing="true"
+            growingThreshold="50"
+            noDataText="No audit entries found"
+            mode="SingleSelectMaster"
+            selectionChange=".onRowPress">
+            <columns>
+                <Column width="80px"><Text text="ID" /></Column>
+                <Column width="160px"><Text text="Timestamp" /></Column>
+                <Column><Text text="Operation" /></Column>
+                <Column width="80px"><Text text="Type" /></Column>
+                <Column width="100px"><Text text="Duration" /></Column>
+                <Column width="70px"><Text text="Status" /></Column>
+                <Column><Text text="Parameters" /></Column>
+            </columns>
+            <items>
+                <ColumnListItem type="Active">
+                    <cells>
+                        <Text text="{raw>id}" wrapping="false" />
+                        <Text text="{raw>timestamp}" wrapping="false" />
+                        <Text text="{raw>tool_name}" wrapping="false" />
+                        <Text text="{raw>call_type}" wrapping="false" />
+                        <ObjectNumber
+                            number="{raw>duration_ms}"
+                            unit="ms"
+                            state="{= ${raw>duration_ms} &lt; 500 ? 'Success' : (${raw>duration_ms} &lt; 2000 ? 'Warning' : 'Error')}" />
+                        <core:Icon
+                            src="{= !!${raw>success} ? 'sap-icon://accept' : 'sap-icon://error'}"
+                            color="{= !!${raw>success} ? 'Positive' : 'Negative'}" />
+                        <Text text="{raw>parametersSummary}" wrapping="false" maxLines="1" />
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </VBox>
+
+</mvc:View>

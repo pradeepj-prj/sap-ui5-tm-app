@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.mtar
+mta_archives/
+LEARNINGS.md
+.claude/

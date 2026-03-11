@@ -1,0 +1,137 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.Demo"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiContentPadding">
+
+        <!-- Toolbar -->
+        <Toolbar class="sapUiSmallMarginBottom">
+            <Select
+                id="demoSessionPicker"
+                selectedKey="{demo>/selectedSession}"
+                change=".onSessionSelect"
+                items="{demo>/sessions}">
+                <core:Item key="{demo>id}" text="{demo>label}" />
+            </Select>
+
+            <ToolbarSpacer />
+
+            <SegmentedButton
+                id="demoTimeRange"
+                selectedKey="{demo>/timeRange}"
+                selectionChange=".onTimeRangeChange">
+                <items>
+                    <SegmentedButtonItem key="1h" text="1h" />
+                    <SegmentedButtonItem key="6h" text="6h" />
+                    <SegmentedButtonItem key="24h" text="24h" />
+                </items>
+            </SegmentedButton>
+
+            <ToolbarSpacer />
+
+            <OverflowToolbarButton
+                icon="sap-icon://eraser"
+                tooltip="{= ${demo>/clearedAt} ? 'Screen cleared — click to restore' : 'Clear screen'}"
+                type="{= ${demo>/clearedAt} ? 'Emphasized' : 'Default'}"
+                press=".onClearScreen" />
+
+            <ObjectStatus
+                text="{demo>/lastUpdatedText}"
+                state="{= ${demo>/isLive} ? 'Success' : 'None'}"
+                icon="{= ${demo>/isLive} ? 'sap-icon://connected' : 'sap-icon://disconnected'}" />
+        </Toolbar>
+
+        <!-- Session Stats -->
+        <HBox class="sapUiSmallMarginBottom" justifyContent="SpaceAround">
+            <GenericTile header="Call Count" frameType="OneByHalf" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent value="{demo>/stats/callCount}" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Errors" frameType="OneByHalf"
+                         state="{= ${demo>/stats/errors} > 0 ? 'Failed' : 'Loaded'}"
+                         class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{demo>/stats/errors}"
+                        valueColor="{= ${demo>/stats/errors} > 0 ? 'Error' : 'Good'}" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Total Duration" frameType="OneByHalf" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent value="{demo>/stats/totalDuration}" scale="ms" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Time Span" frameType="OneByHalf">
+                <TileContent>
+                    <NumericContent value="{demo>/stats/timeSpan}" scale="min" />
+                </TileContent>
+            </GenericTile>
+        </HBox>
+
+        <!-- Call List -->
+        <List
+            id="demoCallList"
+            items="{demo>/calls}"
+            noDataText="No calls in this session"
+            growing="true"
+            growingThreshold="100">
+            <items>
+                <CustomListItem
+                    highlight="{= ${demo>isGap} ? 'None' : (!${demo>success} ? 'Error' : 'Success')}"
+                    type="Inactive">
+
+                    <VBox class="sapUiSmallMargin" visible="{= !${demo>isGap}}">
+                        <HBox alignItems="Center">
+                            <Text text="{demo>timestampShort}" class="sapUiTinyMarginEnd" wrapping="false" />
+                            <Text text="{demo>operation}" class="sapUiTinyMarginEnd tmToolName" wrapping="false" />
+                            <ProgressIndicator
+                                percentValue="{demo>durationPercent}"
+                                displayValue="{demo>duration_ms} ms"
+                                state="{= ${demo>duration_ms} &lt; 500 ? 'Success' : (${demo>duration_ms} &lt; 2000 ? 'Warning' : 'Error')}"
+                                height="1rem"
+                                width="120px"
+                                class="sapUiTinyMarginEnd" />
+                            <core:Icon
+                                src="{= !!${demo>success} ? 'sap-icon://accept' : 'sap-icon://error'}"
+                                color="{= !!${demo>success} ? 'Positive' : 'Negative'}" />
+                        </HBox>
+                        <Text text="{demo>parametersSummary}" maxLines="1" wrapping="false" class="sapUiTinyMarginTop tmParams" />
+                        <MessageStrip
+                            text="{demo>error_message}"
+                            type="Error"
+                            showIcon="true"
+                            showCloseButton="false"
+                            visible="{= !${demo>success}}"
+                            class="sapUiTinyMarginTop" />
+                    </VBox>
+
+                    <!-- Gap marker -->
+                    <HBox
+                        visible="{= ${demo>isGap} === true}"
+                        justifyContent="Center"
+                        alignItems="Center"
+                        class="sapUiSmallMargin tmGapMarker"
+                        height="2rem">
+                        <Text text="{demo>gapLabel}" />
+                    </HBox>
+
+                </CustomListItem>
+            </items>
+        </List>
+
+        <!-- Waiting indicator -->
+        <HBox
+            justifyContent="Center"
+            alignItems="Center"
+            class="sapUiSmallMarginTop"
+            visible="{demo>/isLive}">
+            <BusyIndicator size="1rem" class="sapUiTinyMarginEnd" />
+            <Text text="Waiting for next call..." />
+        </HBox>
+
+    </VBox>
+
+</mvc:View>

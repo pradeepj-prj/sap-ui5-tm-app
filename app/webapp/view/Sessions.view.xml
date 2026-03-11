@@ -1,0 +1,132 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.Sessions"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiContentPadding">
+
+        <!-- Filters Toolbar -->
+        <Toolbar class="sapUiSmallMarginBottom">
+            <SegmentedButton
+                selectedKey="{sessions>/selectedTimeRange}"
+                id="sessTimeRange">
+                <items>
+                    <SegmentedButtonItem key="1h" text="1h" />
+                    <SegmentedButtonItem key="6h" text="6h" />
+                    <SegmentedButtonItem key="24h" text="24h" />
+                    <SegmentedButtonItem key="7d" text="7d" />
+                </items>
+            </SegmentedButton>
+
+            <Button text="Apply" type="Emphasized" press=".onApplyFilter" class="sapUiTinyMarginBegin" />
+
+            <ToolbarSpacer />
+
+            <ObjectStatus text="Updated: {sessions>/lastUpdated}" state="Success" />
+        </Toolbar>
+
+        <!-- Session Summary Tiles -->
+        <FlexBox wrap="Wrap" justifyContent="SpaceAround" class="sapUiSmallMarginBottom">
+            <GenericTile header="Sessions" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent value="{sessions>/summary/totalSessions}" withMargin="false" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Total Calls" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent value="{sessions>/summary/totalCalls}" withMargin="false" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Errors" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{sessions>/summary/errors}"
+                        valueColor="{= ${sessions>/summary/errors} > 0 ? 'Error' : 'Good'}"
+                        withMargin="false" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Avg Duration" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent value="{sessions>/summary/avgDuration}" scale="ms" withMargin="false" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="Time Span" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{sessions>/summary/timeSpan}"
+                        scale="{sessions>/summary/timeSpanUnit}"
+                        withMargin="false" />
+                </TileContent>
+            </GenericTile>
+        </FlexBox>
+
+        <!-- Session List -->
+        <List
+            id="sessionList"
+            items="{sessions>/sessions}"
+            mode="None"
+            itemPress=".onSessionPress"
+            noDataText="No sessions found"
+            growing="true"
+            growingThreshold="20">
+
+            <CustomListItem type="Active" highlight="{= ${sessions>errorCount} > 0 ? 'Error' : 'Success'}">
+                <VBox class="sapUiSmallMargin">
+                    <!-- Session Header -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center">
+                        <HBox alignItems="Center">
+                            <core:Icon src="sap-icon://activities" class="sapUiTinyMarginEnd" />
+                            <Title text="{sessions>displayName}" level="H5" wrapping="false" />
+                        </HBox>
+                        <HBox>
+                            <ObjectStatus text="{sessions>callCount} calls" class="sapUiTinyMarginEnd" />
+                            <ObjectStatus
+                                text="{sessions>errorCount} errors"
+                                state="{= ${sessions>errorCount} > 0 ? 'Error' : 'Success'}"
+                                class="sapUiTinyMarginEnd" />
+                            <ObjectStatus text="{sessions>durationFormatted}" />
+                        </HBox>
+                    </HBox>
+
+                    <HBox class="sapUiTinyMarginTop">
+                        <Label text="From: {sessions>firstCallTime}" class="sapUiTinyMarginEnd" />
+                        <Label text="To: {sessions>lastCallTime}" />
+                    </HBox>
+
+                    <!-- Expanded Call Timeline -->
+                    <VBox visible="{sessions>expanded}" class="sapUiSmallMarginTop">
+                        <List
+                            items="{sessions>calls}"
+                            noDataText="No calls"
+                            showSeparators="Inner">
+
+                            <CustomListItem type="Inactive"
+                                            highlight="{= ${sessions>isGap} ? 'None' : (!${sessions>success} ? 'Error' : 'Success')}">
+                                <!-- Regular Call -->
+                                <HBox alignItems="Center" class="sapUiTinyMargin" visible="{= !${sessions>isGap}}">
+                                    <Text text="{sessions>timestampFormatted}" width="160px" class="sapUiTinyMarginEnd" />
+                                    <core:Icon
+                                        src="{= !!${sessions>success} ? 'sap-icon://accept' : 'sap-icon://error'}"
+                                        color="{= !!${sessions>success} ? 'Positive' : 'Negative'}"
+                                        class="sapUiTinyMarginEnd" />
+                                    <Text text="{sessions>operation}" class="sapUiTinyMarginEnd tmToolName" />
+                                    <ProgressIndicator
+                                        percentValue="{sessions>durationPercent}"
+                                        displayValue="{sessions>duration_ms}ms"
+                                        state="{= ${sessions>duration_ms} &lt; 500 ? 'Success' : (${sessions>duration_ms} &lt; 2000 ? 'Warning' : 'Error')}"
+                                        width="120px" />
+                                </HBox>
+                                <!-- Gap Marker -->
+                                <HBox justifyContent="Center" class="tmGapMarker" visible="{sessions>isGap}">
+                                    <Text text="{sessions>gapFormatted} gap (LLM thinking)" />
+                                </HBox>
+                            </CustomListItem>
+                        </List>
+                    </VBox>
+                </VBox>
+            </CustomListItem>
+        </List>
+    </VBox>
+
+</mvc:View>

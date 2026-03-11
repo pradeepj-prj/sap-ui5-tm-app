@@ -1,0 +1,31 @@
+specVersion: "3.0"
+metadata:
+  name: com.sap.tm.dashboard
+type: application
+resources:
+  configuration:
+    paths:
+      webapp: app/webapp
+framework:
+  name: SAPUI5
+  version: "1.120.0"
+  libraries:
+    - name: sap.m
+    - name: sap.f
+    - name: sap.ui.core
+    - name: sap.ui.layout
+    - name: sap.ui.table
+    - name: sap.viz
+    - name: sap.tnt
+    - name: sap.ui.export
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        backend:
+          - path: /tm
+            url: https://tm-skills-api.cfapps.ap10.hana.ondemand.com
+          - path: /mcp
+            url: https://tm-skills-mcp-v2.cfapps.ap10.hana.ondemand.com
+            pathReplace: /

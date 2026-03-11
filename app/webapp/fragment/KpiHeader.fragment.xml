@@ -1,0 +1,76 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <FlexBox wrap="Wrap" justifyContent="SpaceBetween" class="sapUiSmallMarginBottom">
+        <GenericTile
+            header="Total Calls"
+            subheader="All time"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/total_calls}"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            header="Active Sessions"
+            subheader="Unique sessions"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/active_sessions}"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            header="Unique Operations"
+            subheader="Distinct tools"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/unique_operations}"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            header="Avg Duration"
+            subheader="Across all calls"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/avg_duration_ms}"
+                    scale="ms"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            header="Error Rate"
+            subheader="Failed / Total"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/error_rate}"
+                    scale="%"
+                    valueColor="{= ${overview>/summary/error_rate} > 5 ? 'Error' : 'Good'}"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            header="Unique Clients"
+            subheader="Connected clients"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+            <TileContent>
+                <NumericContent
+                    value="{overview>/summary/unique_clients}"
+                    withMargin="false" />
+            </TileContent>
+        </GenericTile>
+    </FlexBox>
+
+</core:FragmentDefinition>

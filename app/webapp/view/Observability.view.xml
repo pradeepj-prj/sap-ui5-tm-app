@@ -1,0 +1,180 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.Observability"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:vizData="sap.viz.ui5.data"
+    xmlns:vizFeeds="sap.viz.ui5.controls.common.feeds">
+
+    <VBox class="sapUiContentPadding">
+
+        <!-- Latency Percentile Tiles -->
+        <FlexBox justifyContent="Start" wrap="Wrap" class="sapUiSmallMarginBottom">
+            <GenericTile header="P50 Latency" subheader="Median" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{obs>/percentiles/p50}"
+                        scale="ms"
+                        valueColor="{= ${obs>/percentiles/p50} &lt; 500 ? 'Good' : (${obs>/percentiles/p50} &lt; 2000 ? 'Critical' : 'Error')}" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="P95 Latency" subheader="95th percentile" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{obs>/percentiles/p95}"
+                        scale="ms"
+                        valueColor="{= ${obs>/percentiles/p95} &lt; 1000 ? 'Good' : (${obs>/percentiles/p95} &lt; 3000 ? 'Critical' : 'Error')}" />
+                </TileContent>
+            </GenericTile>
+            <GenericTile header="P99 Latency" subheader="99th percentile" class="sapUiTinyMarginEnd">
+                <TileContent>
+                    <NumericContent
+                        value="{obs>/percentiles/p99}"
+                        scale="ms"
+                        valueColor="{= ${obs>/percentiles/p99} &lt; 2000 ? 'Good' : (${obs>/percentiles/p99} &lt; 5000 ? 'Critical' : 'Error')}" />
+                </TileContent>
+            </GenericTile>
+        </FlexBox>
+
+        <!-- Charts Section -->
+        <l:Grid defaultSpan="L6 M12 S12" class="sapUiSmallMarginTop">
+            <l:content>
+
+                <!-- Calls per Operation -->
+                <Panel headerText="Calls per Operation">
+                    <viz:VizFrame id="obsCallsPerOpChart" vizType="bar" height="300px" width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{obs>/callsByOperation}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Operation" value="{obs>Operation}" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Count" value="{obs>Count}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="Count" />
+                            <vizFeeds:FeedItem uid="categoryAxis" type="Dimension" values="Operation" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+                <!-- Error Rate by Operation -->
+                <Panel headerText="Error Rate by Operation">
+                    <viz:VizFrame id="obsErrorRateChart" vizType="bar" height="300px" width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{obs>/errorRates}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Operation" value="{obs>Operation}" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="ErrorRate" value="{obs>ErrorRate}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="ErrorRate" />
+                            <vizFeeds:FeedItem uid="categoryAxis" type="Dimension" values="Operation" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+                <!-- Latency by Operation -->
+                <Panel headerText="Latency by Operation">
+                    <viz:VizFrame id="obsLatencyByOpChart" vizType="bar" height="300px" width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{obs>/latencyByOp}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Operation" value="{obs>Operation}" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Avg" value="{obs>Avg}" />
+                                    <vizData:MeasureDefinition name="Max" value="{obs>Max}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="Avg,Max" />
+                            <vizFeeds:FeedItem uid="categoryAxis" type="Dimension" values="Operation" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+                <!-- Duration Distribution -->
+                <Panel headerText="Duration Distribution">
+                    <viz:VizFrame id="obsDurationHistChart" vizType="column" height="300px" width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{obs>/histogram}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Bucket" value="{obs>Bucket}" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Count" value="{obs>Count}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="Count" />
+                            <vizFeeds:FeedItem uid="categoryAxis" type="Dimension" values="Bucket" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+                <!-- Latency Scatter -->
+                <Panel headerText="Latency Scatter">
+                    <viz:VizFrame id="obsLatencyScatterChart" vizType="timeseries_scatter" height="300px" width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{obs>/scatter}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Time" value="{obs>Time}" dataType="date" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Duration" value="{obs>Duration}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="Duration" />
+                            <vizFeeds:FeedItem uid="timeAxis" type="Dimension" values="Time" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+            </l:content>
+        </l:Grid>
+
+        <!-- Top 10 Slowest Calls -->
+        <Panel headerText="Top 10 Slowest Calls" class="sapUiSmallMarginTop">
+            <Table id="obsSlowestTable" items="{obs>/slowest}" noDataText="No data available">
+                <columns>
+                    <Column><Text text="Operation" /></Column>
+                    <Column><Text text="Duration (ms)" /></Column>
+                    <Column><Text text="Timestamp" /></Column>
+                    <Column><Text text="Client" /></Column>
+                    <Column><Text text="Status" /></Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{obs>Operation}" />
+                            <ObjectNumber
+                                number="{obs>Duration}"
+                                unit="ms"
+                                state="{= ${obs>Duration} &lt; 500 ? 'Success' : (${obs>Duration} &lt; 2000 ? 'Warning' : 'Error')}" />
+                            <Text text="{obs>Timestamp}" />
+                            <Text text="{obs>Client}" />
+                            <ObjectStatus
+                                text="{obs>Status}"
+                                state="{= ${obs>Status} === 'Success' ? 'Success' : 'Error'}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </Panel>
+
+    </VBox>
+
+</mvc:View>

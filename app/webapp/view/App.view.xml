@@ -1,0 +1,74 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.App"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+
+    <App id="app">
+        <Page id="mainPage" showHeader="false">
+            <content>
+
+                <f:ShellBar
+                    title="TM Skills Dashboard"
+                    showNavButton="false"
+                    homeIcon="sap-icon://machine">
+                    <f:additionalContent>
+                        <Select
+                            id="serverSelect"
+                            selectedKey="{server>/selectedServer}"
+                            change=".onServerChange"
+                            items="{server>/servers}">
+                            <core:Item key="{server>key}" text="{server>name}" />
+                        </Select>
+                        <OverflowToolbarButton
+                            icon="sap-icon://action-settings"
+                            tooltip="Settings"
+                            press=".onOpenSettings" />
+                    </f:additionalContent>
+                </f:ShellBar>
+
+                <IconTabBar
+                    id="mainTabBar"
+                    selectedKey="{app>/selectedTab}"
+                    select=".onTabSelect"
+                    expandable="false"
+                    class="sapUiResponsiveContentPadding">
+
+                    <items>
+                        <IconTabFilter key="overview" text="Overview" icon="sap-icon://home" id="tabOverview">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.Overview" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="apiExplorer" text="API Explorer" icon="sap-icon://detail-more" id="tabApiExplorer">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.ApiExplorer" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="mcpExplorer" text="MCP Explorer" icon="sap-icon://puzzle" id="tabMcpExplorer">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.McpExplorer" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="sessions" text="Sessions" icon="sap-icon://activities" id="tabSessions">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.Sessions" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="observability" text="Observability" icon="sap-icon://line-charts" id="tabObservability">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.Observability" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="rawData" text="Raw Data" icon="sap-icon://database" id="tabRawData">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.RawData" />
+                        </IconTabFilter>
+
+                        <IconTabFilter key="demo" text="Demo" icon="sap-icon://play" id="tabDemo">
+                            <mvc:XMLView viewName="com.sap.tm.dashboard.view.Demo" />
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
+
+            </content>
+        </Page>
+    </App>
+
+</mvc:View>

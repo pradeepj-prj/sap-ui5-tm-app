@@ -1,0 +1,90 @@
+<mvc:View
+    controllerName="com.sap.tm.dashboard.controller.Overview"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:vizData="sap.viz.ui5.data"
+    xmlns:vizFeeds="sap.viz.ui5.controls.common.feeds">
+
+    <VBox class="sapUiContentPadding">
+        <!-- KPI Tiles -->
+        <core:Fragment fragmentName="com.sap.tm.dashboard.fragment.KpiHeader" type="XML" />
+
+        <!-- Charts Row -->
+        <l:Grid defaultSpan="L6 M12 S12" class="sapUiSmallMarginTop">
+            <l:content>
+                <!-- Operation Mix Donut -->
+                <Panel headerText="Operation Mix">
+                    <viz:VizFrame
+                        id="overviewDonutChart"
+                        vizType="donut"
+                        height="300px"
+                        width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{overview>/operationMix}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Operation" value="{overview>operation}" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Count" value="{overview>count}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="size" type="Measure" values="Count" />
+                            <vizFeeds:FeedItem uid="color" type="Dimension" values="Operation" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+
+                <!-- Call Volume Over Time -->
+                <Panel headerText="Call Volume Over Time">
+                    <viz:VizFrame
+                        id="overviewTimelineChart"
+                        vizType="timeseries_line"
+                        height="300px"
+                        width="100%">
+                        <viz:dataset>
+                            <vizData:FlattenedDataset data="{overview>/callVolume}">
+                                <vizData:dimensions>
+                                    <vizData:DimensionDefinition name="Time" value="{overview>time}" dataType="date" />
+                                </vizData:dimensions>
+                                <vizData:measures>
+                                    <vizData:MeasureDefinition name="Calls" value="{overview>count}" />
+                                </vizData:measures>
+                            </vizData:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <vizFeeds:FeedItem uid="valueAxis" type="Measure" values="Calls" />
+                            <vizFeeds:FeedItem uid="timeAxis" type="Dimension" values="Time" />
+                        </viz:feeds>
+                    </viz:VizFrame>
+                </Panel>
+            </l:content>
+        </l:Grid>
+
+        <!-- Recent Activity -->
+        <Panel headerText="Recent Activity" class="sapUiSmallMarginTop">
+            <List
+                id="recentActivityList"
+                items="{overview>/recentActivity}"
+                noDataText="No recent activity">
+                <ObjectListItem
+                    title="{overview>tool_name}"
+                    number="{overview>duration_ms}"
+                    numberUnit="ms"
+                    numberState="{= ${overview>duration_ms} &lt; 500 ? 'Success' : (${overview>duration_ms} &lt; 2000 ? 'Warning' : 'Error')}"
+                    intro="{overview>call_type}"
+                    icon="{= !!${overview>success} ? 'sap-icon://accept' : 'sap-icon://error'}">
+                    <attributes>
+                        <ObjectAttribute text="{overview>timestamp}" />
+                        <ObjectAttribute text="{overview>call_type}" />
+                    </attributes>
+                </ObjectListItem>
+            </List>
+        </Panel>
+    </VBox>
+
+</mvc:View>

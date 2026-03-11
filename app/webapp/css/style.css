@@ -1,0 +1,152 @@
+/* TM Skills Dashboard - Custom Styles */
+
+/* Duration semantic colors */
+.tmDurationFast {
+    color: #107e3e; /* green */
+}
+.tmDurationMedium {
+    color: #e9730c; /* yellow/orange */
+}
+.tmDurationSlow {
+    color: #bb0000; /* red */
+}
+
+/* Risk level badges */
+.tmRiskHigh {
+    background-color: #bb0000;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+.tmRiskMedium {
+    background-color: #e9730c;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+.tmRiskLow {
+    background-color: #107e3e;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Gap markers in session/demo timeline */
+.tmGapMarker {
+    border: 1px dashed #bbb;
+    background-color: #f5f5f5;
+    padding: 8px 16px;
+    margin: 4px 0;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 0.85rem;
+    border-radius: 4px;
+}
+
+/* Compact tile row */
+.tmKpiRow .sapMGT {
+    margin: 4px;
+}
+
+/* Session timeline call item */
+.tmCallItem {
+    border-left: 3px solid #0854a0;
+    padding-left: 12px;
+    margin-bottom: 4px;
+}
+.tmCallItem.tmCallError {
+    border-left-color: #bb0000;
+}
+.tmCallItem.tmCallSlow {
+    border-left-color: #e9730c;
+}
+
+/* Tool name in call list */
+.tmToolName {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Parameters text (truncated) */
+.tmParams {
+    color: #666;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+}
+
+/* Live indicator pulse */
+.tmLiveIndicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #107e3e;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: tmPulse 2s infinite;
+}
+@keyframes tmPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* MCP Explorer tool card */
+.tmToolCard {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+.tmToolCard .tmToolCardName {
+    font-weight: bold;
+    font-size: 1rem;
+}
+.tmToolCard .tmToolCardDesc {
+    color: #555;
+    margin-top: 4px;
+}
+
+/* Required parameter badge */
+.tmRequired {
+    background-color: #0854a0;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    margin-left: 4px;
+}
+
+/* VizFrame containers */
+.tmChartPanel .sapMPanel {
+    margin-bottom: 8px;
+}
+
+/* Endpoint form area */
+.tmEndpointForm {
+    padding: 16px;
+}
+.tmEndpointForm .sapMLabel {
+    font-weight: 600;
+}
+
+/* Results area */
+.tmResultsArea {
+    margin-top: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Splitter for API Explorer */
+.tmApiSplitter .sapUiLoSplitterBar {
+    background-color: #e0e0e0;
+}

@@ -1,0 +1,196 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <!-- Attrition-specific results display, shown only for attrition group endpoints -->
+    <VBox visible="{= ${apiExplorer>/selectedEndpoint/group} === 'Attrition' &amp;&amp; !!${apiExplorer>/results}}">
+
+        <!-- Single Employee Risk Card -->
+        <Panel
+            headerText="Attrition Risk Assessment"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'predict_attrition_risk'}"
+            class="sapUiSmallMarginBottom">
+            <VBox class="sapUiSmallMargin">
+                <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                    <Label text="Risk Level:" class="sapUiSmallMarginEnd" design="Bold" />
+                    <ObjectStatus
+                        text="{apiExplorer>/results/risk_level}"
+                        state="{= ${apiExplorer>/results/risk_level} === 'High' || ${apiExplorer>/results/risk_level} === 'Critical' ? 'Error' : (${apiExplorer>/results/risk_level} === 'Medium' ? 'Warning' : 'Success')}"
+                        icon="{= ${apiExplorer>/results/risk_level} === 'High' || ${apiExplorer>/results/risk_level} === 'Critical' ? 'sap-icon://warning2' : (${apiExplorer>/results/risk_level} === 'Medium' ? 'sap-icon://hint' : 'sap-icon://accept')}" />
+                </HBox>
+
+                <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                    <Label text="Risk Score:" class="sapUiSmallMarginEnd" design="Bold" width="100px" />
+                    <ProgressIndicator
+                        percentValue="{= ${apiExplorer>/results/risk_score} * 100}"
+                        displayValue="{= Math.round(${apiExplorer>/results/risk_score} * 100) + '%'}"
+                        state="{= ${apiExplorer>/results/risk_score} > 0.7 ? 'Error' : (${apiExplorer>/results/risk_score} > 0.4 ? 'Warning' : 'Success')}"
+                        width="300px" />
+                </HBox>
+
+                <HBox alignItems="Center" class="sapUiSmallMarginBottom"
+                      visible="{= !!${apiExplorer>/results/employee_name}}">
+                    <Label text="Employee:" class="sapUiSmallMarginEnd" design="Bold" width="100px" />
+                    <Text text="{apiExplorer>/results/employee_name}" />
+                </HBox>
+
+                <!-- Risk Factors Breakdown -->
+                <Panel headerText="Contributing Factors" expandable="true" expanded="true"
+                       visible="{= !!${apiExplorer>/results/factors}}"
+                       class="sapUiSmallMarginTop">
+                    <List items="{apiExplorer>/results/factors}">
+                        <CustomListItem>
+                            <HBox alignItems="Center" class="sapUiSmallMargin">
+                                <VBox width="200px">
+                                    <Label text="{apiExplorer>factor_name}" design="Bold" />
+                                    <Label text="{apiExplorer>category}" />
+                                </VBox>
+                                <ProgressIndicator
+                                    percentValue="{= ${apiExplorer>impact_score} * 100}"
+                                    displayValue="{= Math.round(${apiExplorer>impact_score} * 100) + '%'}"
+                                    state="{= ${apiExplorer>impact_score} > 0.7 ? 'Error' : (${apiExplorer>impact_score} > 0.4 ? 'Warning' : 'Success')}"
+                                    width="250px"
+                                    class="sapUiSmallMarginBegin" />
+                            </HBox>
+                        </CustomListItem>
+                    </List>
+                </Panel>
+            </VBox>
+        </Panel>
+
+        <!-- High Risk Employees List -->
+        <Panel
+            headerText="High Risk Employees"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'get_high_risk_employees'}"
+            class="sapUiSmallMarginBottom">
+            <List items="{apiExplorer>/resultsArray}">
+                <ObjectListItem
+                    title="{apiExplorer>employee_name}"
+                    number="{= Math.round(${apiExplorer>risk_score} * 100)}"
+                    numberUnit="%"
+                    numberState="{= ${apiExplorer>risk_score} > 0.7 ? 'Error' : (${apiExplorer>risk_score} > 0.4 ? 'Warning' : 'Success')}"
+                    intro="{apiExplorer>employee_id}">
+                    <attributes>
+                        <ObjectAttribute text="Risk Level: {apiExplorer>risk_level}" />
+                        <ObjectAttribute text="Department: {apiExplorer>department}" />
+                    </attributes>
+                    <firstStatus>
+                        <ObjectStatus
+                            text="{apiExplorer>risk_level}"
+                            state="{= ${apiExplorer>risk_level} === 'High' || ${apiExplorer>risk_level} === 'Critical' ? 'Error' : (${apiExplorer>risk_level} === 'Medium' ? 'Warning' : 'Success')}" />
+                    </firstStatus>
+                </ObjectListItem>
+            </List>
+        </Panel>
+
+        <!-- Attrition Factors Breakdown -->
+        <Panel
+            headerText="Attrition Factors"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'get_attrition_factors'}"
+            class="sapUiSmallMarginBottom">
+            <List items="{apiExplorer>/resultsArray}">
+                <CustomListItem>
+                    <HBox alignItems="Center" class="sapUiSmallMargin">
+                        <VBox width="250px">
+                            <Label text="{apiExplorer>factor_name}" design="Bold" />
+                            <Label text="Category: {apiExplorer>category}" />
+                        </VBox>
+                        <ProgressIndicator
+                            percentValue="{= ${apiExplorer>impact_score} * 100}"
+                            displayValue="{= Math.round(${apiExplorer>impact_score} * 100) + '% impact'}"
+                            state="{= ${apiExplorer>impact_score} > 0.7 ? 'Error' : (${apiExplorer>impact_score} > 0.4 ? 'Warning' : 'Success')}"
+                            width="300px"
+                            class="sapUiSmallMarginBegin" />
+                    </HBox>
+                </CustomListItem>
+            </List>
+        </Panel>
+
+        <!-- Org Attrition Summary -->
+        <Panel
+            headerText="Organization Attrition Summary"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'get_org_attrition_summary'}"
+            class="sapUiSmallMarginBottom">
+            <VBox class="sapUiSmallMargin">
+                <HBox class="sapUiSmallMarginBottom">
+                    <ObjectStatus
+                        text="Overall Risk: {apiExplorer>/results/overall_risk_level}"
+                        state="{= ${apiExplorer>/results/overall_risk_level} === 'High' || ${apiExplorer>/results/overall_risk_level} === 'Critical' ? 'Error' : (${apiExplorer>/results/overall_risk_level} === 'Medium' ? 'Warning' : 'Success')}"
+                        icon="sap-icon://alert"
+                        class="sapUiSmallMarginEnd" />
+                    <ObjectStatus
+                        text="Avg Score: {= Math.round(${apiExplorer>/results/average_risk_score} * 100) + '%'}"
+                        state="{= ${apiExplorer>/results/average_risk_score} > 0.5 ? 'Error' : 'Success'}" />
+                </HBox>
+
+                <l:Grid defaultSpan="L4 M6 S12">
+                    <l:content>
+                        <GenericTile header="Total Employees" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                            <TileContent>
+                                <NumericContent value="{apiExplorer>/results/total_employees}" withMargin="false" />
+                            </TileContent>
+                        </GenericTile>
+                        <GenericTile header="High Risk" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                            <TileContent>
+                                <NumericContent
+                                    value="{apiExplorer>/results/high_risk_count}"
+                                    valueColor="Error"
+                                    withMargin="false" />
+                            </TileContent>
+                        </GenericTile>
+                        <GenericTile header="Medium Risk" class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+                            <TileContent>
+                                <NumericContent
+                                    value="{apiExplorer>/results/medium_risk_count}"
+                                    valueColor="Critical"
+                                    withMargin="false" />
+                            </TileContent>
+                        </GenericTile>
+                    </l:content>
+                </l:Grid>
+            </VBox>
+        </Panel>
+
+        <!-- Retention Recommendations -->
+        <Panel
+            headerText="Retention Recommendations"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'get_retention_recommendations'}"
+            class="sapUiSmallMarginBottom">
+            <List items="{apiExplorer>/resultsArray}">
+                <ObjectListItem
+                    title="{apiExplorer>recommendation}"
+                    number="{apiExplorer>priority}"
+                    numberUnit="priority"
+                    intro="{apiExplorer>category}"
+                    icon="sap-icon://lightbulb">
+                    <attributes>
+                        <ObjectAttribute text="Impact: {apiExplorer>expected_impact}" />
+                        <ObjectAttribute text="Timeline: {apiExplorer>timeline}" />
+                    </attributes>
+                </ObjectListItem>
+            </List>
+        </Panel>
+
+        <!-- Workforce Trends -->
+        <Panel
+            headerText="Workforce Trends"
+            visible="{= ${apiExplorer>/selectedEndpoint/name} === 'get_workforce_trends'}"
+            class="sapUiSmallMarginBottom">
+            <List items="{apiExplorer>/resultsArray}">
+                <ObjectListItem
+                    title="{apiExplorer>period}"
+                    number="{apiExplorer>attrition_rate}"
+                    numberUnit="%"
+                    numberState="{= ${apiExplorer>attrition_rate} > 15 ? 'Error' : (${apiExplorer>attrition_rate} > 10 ? 'Warning' : 'Success')}">
+                    <attributes>
+                        <ObjectAttribute text="Headcount: {apiExplorer>headcount}" />
+                        <ObjectAttribute text="New Hires: {apiExplorer>new_hires}" />
+                        <ObjectAttribute text="Departures: {apiExplorer>departures}" />
+                    </attributes>
+                </ObjectListItem>
+            </List>
+        </Panel>
+    </VBox>
+
+</core:FragmentDefinition>
