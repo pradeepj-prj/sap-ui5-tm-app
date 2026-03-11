@@ -8,7 +8,26 @@
     "applicationVersion": {
       "version": "1.0.0"
     },
-    "dataSources": {}
+    "dataSources": {},
+    "crossNavigation": {
+      "inbounds": {
+        "tm-dashboard-display": {
+          "semanticObject": "TMDashboard",
+          "action": "display",
+          "title": "TM Skills Dashboard",
+          "subtitle": "Talent Management & MCP Monitoring",
+          "icon": "sap-icon://dashboard",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "com.sap.tm.dashboard"
   },
   "sap.ui": {
     "technology": "UI5",
