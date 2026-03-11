@@ -13,12 +13,14 @@ sap.ui.define([
             UIComponent.prototype.init.apply(this, arguments);
 
             // Server configuration model
+            // In Work Zone, requests go through /cp.portal/ which the SaaS AppRouter
+            // routes via xs-app.json. Relative paths resolve correctly in the iframe.
             var oServerModel = new JSONModel({
-                tmBaseUrl: "/tm",
-                mcpBaseUrl: "/mcp",
+                tmBaseUrl: "./tm",
+                mcpBaseUrl: "./mcp",
                 apiKey: sessionStorage.getItem("tmApiKey") || "",
                 servers: [
-                    { key: "btp", name: "BTP (Destination)", tmUrl: "/tm", mcpUrl: "/mcp" },
+                    { key: "btp", name: "BTP (Destination)", tmUrl: "./tm", mcpUrl: "./mcp" },
                     { key: "local", name: "Local Dev", tmUrl: "http://localhost:8000", mcpUrl: "http://localhost:8001" }
                 ],
                 selectedServer: "btp"

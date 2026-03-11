@@ -13,6 +13,24 @@ build-parameters:
         - npm install
 
 modules:
+  # Standalone AppRouter — serves the app and routes API calls
+  - name: tm-dashboard-approuter
+    type: approuter.nodejs
+    path: approuter
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: tm-dashboard-uaa
+      - name: tm-dashboard-destination-service
+    build-parameters:
+      builder: npm
+      requires:
+        - name: tm-dashboard-content
+          artifacts:
+            - "**"
+          target-path: resources
+
   # UI5 app — built and zipped for HTML5 repo
   - name: tm-dashboard-content
     type: html5
@@ -75,7 +93,7 @@ modules:
       no-source: true
 
 resources:
-  # HTML5 Application Repository
+  # HTML5 Application Repository (app-host for uploading)
   - name: tm-dashboard-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
@@ -106,10 +124,12 @@ resources:
                 ProxyType: Internet
                 Type: HTTP
                 HTML5.DynamicDestination: true
+                sap.cloud.service: com.sap.tm.dashboard
               - Name: tm-mcp-server
                 URL: https://tm-skills-mcp-v2.cfapps.ap10.hana.ondemand.com
                 Authentication: NoAuthentication
                 ProxyType: Internet
                 Type: HTTP
                 HTML5.DynamicDestination: true
+                sap.cloud.service: com.sap.tm.dashboard
             existing_destinations_policy: update

@@ -3,23 +3,23 @@
   "authenticationMethod": "route",
   "routes": [
     {
-      "source": "^(/tm/.*)$",
-      "target": "$1",
+      "source": "^/tm/(.*)$",
+      "target": "/tm/$1",
       "destination": "tm-api-layer",
-      "authenticationType": "xsuaa",
+      "authenticationType": "none",
       "csrfProtection": false
     },
     {
       "source": "^/mcp/(.*)$",
-      "target": "$1",
+      "target": "/$1",
       "destination": "tm-mcp-server",
-      "authenticationType": "xsuaa",
+      "authenticationType": "none",
       "csrfProtection": false
     },
     {
       "source": "^(.*)$",
       "target": "$1",
-      "service": "html5-apps-repo-rt",
+      "localDir": "resources",
       "authenticationType": "xsuaa"
     }
   ]

@@ -103,23 +103,34 @@ with same sap.cloud.service property not allowed.
 
 **Fix:** Recreated `tm-api-layer` and `tm-mcp-server` **without** `sap.cloud.service`. Backend destinations are resolved by name from `xs-app.json`, not by `sap.cloud.service`. Only the HTML5 repo host and UAA destinations need it.
 
-### Issue 5: App still returns 404 on API calls (UNRESOLVED)
+### Issue 5: App returns 404 on API calls — destination resolution failure (RESOLVED via standalone AppRouter)
 
-**Current state:** The app loads, the UI renders, but all API calls to `/tm/...` and `/mcp/...` return HTTP 404. The "Failed to load demo data: HTTP 404" error appears.
+**Current state:** The app loads and renders correctly in Work Zone (all 7 tabs, ShellBar, KPIs visible). All API calls to `/mcp/...` and `/tm/...` return HTTP 404.
 
-**What we know:**
-- The two subaccount destinations (`tm-api-layer`, `tm-mcp-server`) exist and are visible in BTP Cockpit
-- They have `HTML5.DynamicDestination: true`
-- They do NOT have `sap.cloud.service` (removed to fix Issue 4)
-- The `xs-app.json` routes point to these destination names
-- The app's `manifest.json` has `sap.cloud.service: "com.sap.tm.dashboard"` and `sap.cloud.public: true`
+**What we confirmed via DevTools:**
 
-**Possible causes to investigate:**
-1. **Missing `sap.cloud.service` on backend destinations**: The managed AppRouter may actually require `sap.cloud.service` on all destinations it routes to, but this conflicts with Issue 4. A workaround might be to use instance-level destinations via a different mechanism.
-2. **Managed AppRouter not active**: The app is accessed via the raw HTML5 repo URL, not through Work Zone's managed AppRouter. Without the AppRouter in the request path, `xs-app.json` routes are not processed — the browser sends requests directly to the HTML5 repo host, which doesn't know about `/tm/` or `/mcp/`.
-3. **Work Zone subscription required**: The managed AppRouter is provided by SAP Build Work Zone. If Work Zone is not subscribed in this subaccount, there is no AppRouter to process `xs-app.json` routes.
-4. **Destination service not bound to managed AppRouter**: The managed AppRouter needs to be aware of the destination service instance to resolve destinations. This binding happens automatically when Work Zone is subscribed and the app is added via the Content Manager.
-5. **`HTML5.DynamicDestination` may need `sap.cloud.service`**: Some SAP documentation suggests that for the managed AppRouter to resolve a dynamic destination, it must have matching `sap.cloud.service`. If so, the solution may be to move backend destinations to instance-level on the destination service and reference them differently.
+The app runs inside a Work Zone iframe at `/cp.portal/ui5appruntime.html`. All fetch calls resolve to `/cp.portal/mcp/audit/summary`, `/cp.portal/mcp/audit/recent`, etc. This is **correct behavior** — the SaaS AppRouter proxies all requests through `/cp.portal/` and should match them against the app's `xs-app.json`.
+
+**URL approaches tried (none changed the outcome):**
+1. Absolute paths (`/tm`, `/mcp`) → resolves to `/cp.portal/mcp/...` → 404
+2. Relative paths (`./tm`, `./mcp`) → resolves to `/cp.portal/mcp/...` → 404
+3. `sap.ui.require.toUrl("com/sap/tm/dashboard")` → also resolves within `/cp.portal/` context → 404
+4. `this.getMetadata().getManifestUrl()` base extraction → same `/cp.portal/` → 404
+
+**Conclusion: The URL is correct. The problem is destination resolution.** The SaaS AppRouter receives the request, matches `^/mcp/(.*)$` in xs-app.json, but cannot resolve the `tm-mcp-server` destination — so it falls through to the HTML5 repo catch-all route, which returns 404 (no such file).
+
+**Also tried:**
+- `authenticationType: "none"` on API routes → 404
+- `authenticationType: "xsuaa"` on API routes → 404
+- Backend destinations with `sap.cloud.service` → triggers "multiple destinations with same sap.cloud.service" warning
+- Backend destinations without `sap.cloud.service` → 404
+- `init_data` instance-level destinations → managed AppRouter ignores instance-level destinations
+
+**Root cause:** The managed AppRouter / SaaS AppRouter cannot resolve the backend destinations (`tm-api-layer`, `tm-mcp-server`). This is likely because:
+1. **Instance-level vs subaccount-level**: `init_data` creates instance-level destinations, but the managed AppRouter only reads subaccount-level destinations
+2. **Subaccount destinations may be missing**: They were created via REST API on a previous destination service instance, which was deleted and recreated (clearing instance-level destinations but subaccount destinations should persist)
+3. **`sap.cloud.service` scoping conflict**: The managed AppRouter may require `sap.cloud.service` on backend destinations to scope them to the app, but having 4+ destinations with the same value triggers the "multiple destinations not allowed" constraint
+4. **Permissions gap**: We don't have Destination Administrator role, so we can't verify or edit subaccount destination properties in the cockpit (read-only access only)
 
 ---
 
@@ -303,10 +314,28 @@ cf dmol -i <operation-id>
 
 ---
 
-## Next Steps to Resolve the 404
+## Resolution: Standalone AppRouter
 
-1. **Verify Work Zone is subscribed** in the subaccount — the managed AppRouter only exists if Work Zone (standard or advanced) is active
-2. **Access the app through Work Zone** (not the raw HTML5 repo URL) — follow `docs/05-workzone-integration.md` to add the app tile, then access it through the Work Zone site
-3. **Check if a standalone AppRouter is needed** — if Work Zone is not available, deploy a standalone AppRouter module (adds CF runtime memory but gives full control over routing)
-4. **Try the other subaccount** where destinations already exist and Work Zone may be subscribed — would need CF org membership there
-5. **Test destination connectivity** from BTP Cockpit → Destinations → click "Check Connection" on each backend destination
+The managed AppRouter / SaaS AppRouter could not be made to resolve backend destinations despite extensive attempts. The fix was deploying a **standalone AppRouter** (`@sap/approuter`) as a CF app that:
+
+1. Serves the built UI5 files from a local `resources/` directory (copied from `dist/` during MTA build)
+2. Routes `/tm/*` and `/mcp/*` to backend destinations via the bound destination service
+3. Handles XSUAA authentication (automatic redirect to SAP IDP login)
+
+**Key details:**
+- The standalone AppRouter resolves destinations from the **instance-level** destinations on its bound destination service — no subaccount-level destination scoping issues
+- UI5 files are served with `"localDir": "resources"` instead of fetching from HTML5 repo runtime (which had its own `Service Tag index is unknown` issue)
+- Uses 256MB CF runtime memory (trade-off for reliable routing)
+- App URL: `https://seaio-dial-3-0-zme762l7-dev-tm-dashboard-approuter.cfapps.ap10.hana.ondemand.com`
+- The Work Zone tile still exists and can be configured as a URL tile pointing to the standalone AppRouter
+
+**Files added:**
+- `approuter/package.json` — `@sap/approuter` dependency
+- `approuter/xs-app.json` — routes for `/tm/*`, `/mcp/*`, and catch-all to `localDir`
+
+**MTA changes:**
+- Added `tm-dashboard-approuter` module (type `approuter.nodejs`)
+- Build copies `dist/**` into `approuter/resources/`
+- Binds to `tm-dashboard-uaa` and `tm-dashboard-destination-service`
+
+The HTML5 repo deploy (managed AppRouter path) is still in the MTA for Work Zone tile visibility, but API routing only works through the standalone AppRouter.
