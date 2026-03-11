@@ -69,6 +69,20 @@ modules:
               ServiceInstanceName: tm-dashboard-uaa
               ServiceKeyName: tm-dashboard-uaa-key
               sap.cloud.service: com.sap.tm.dashboard
+            - Name: tm-api-layer
+              Type: HTTP
+              URL: https://tm-skills-api.cfapps.ap10.hana.ondemand.com
+              Authentication: NoAuthentication
+              ProxyType: Internet
+              HTML5.DynamicDestination: true
+              sap.cloud.service: com.sap.tm.dashboard
+            - Name: tm-mcp-server
+              Type: HTTP
+              URL: https://tm-skills-mcp-v2.cfapps.ap10.hana.ondemand.com
+              Authentication: NoAuthentication
+              ProxyType: Internet
+              HTML5.DynamicDestination: true
+              sap.cloud.service: com.sap.tm.dashboard
           existing_destinations_policy: update
     build-parameters:
       no-source: true
