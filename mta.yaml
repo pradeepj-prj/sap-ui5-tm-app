@@ -23,6 +23,7 @@ modules:
       commands:
         - npm install
         - npx ui5 build --clean-dest --dest dist
+        - bash -c "cd dist && zip -r com.sap.tm.dashboard.zip ."
       supported-platforms: []
 
   # Deploys the app zip to HTML5 Application Repository
@@ -38,7 +39,7 @@ modules:
       requires:
         - name: tm-dashboard-content
           artifacts:
-            - dist/*.zip
+            - com.sap.tm.dashboard.zip
           target-path: resources/
 
   # Deploys destination configuration
@@ -69,20 +70,6 @@ modules:
               ServiceInstanceName: tm-dashboard-uaa
               ServiceKeyName: tm-dashboard-uaa-key
               sap.cloud.service: com.sap.tm.dashboard
-            - Name: tm-api-layer
-              Type: HTTP
-              URL: https://tm-skills-api.cfapps.ap10.hana.ondemand.com
-              Authentication: NoAuthentication
-              ProxyType: Internet
-              HTML5.DynamicDestination: true
-              sap.cloud.service: com.sap.tm.dashboard
-            - Name: tm-mcp-server
-              Type: HTTP
-              URL: https://tm-skills-mcp-v2.cfapps.ap10.hana.ondemand.com
-              Authentication: NoAuthentication
-              ProxyType: Internet
-              HTML5.DynamicDestination: true
-              sap.cloud.service: com.sap.tm.dashboard
           existing_destinations_policy: update
     build-parameters:
       no-source: true
@@ -109,3 +96,22 @@ resources:
     parameters:
       service: destination
       service-plan: lite
+      config:
+        init_data:
+          instance:
+            destinations:
+              - Name: tm-api-layer
+                URL: https://tm-skills-api.cfapps.ap10.hana.ondemand.com
+                Authentication: NoAuthentication
+                ProxyType: Internet
+                Type: HTTP
+                HTML5.DynamicDestination: true
+                sap.cloud.service: com.sap.tm.dashboard
+              - Name: tm-mcp-server
+                URL: https://tm-skills-mcp-v2.cfapps.ap10.hana.ondemand.com
+                Authentication: NoAuthentication
+                ProxyType: Internet
+                Type: HTTP
+                HTML5.DynamicDestination: true
+                sap.cloud.service: com.sap.tm.dashboard
+            existing_destinations_policy: update
